@@ -1,3 +1,8 @@
+if [ ! jq --version 2>&1 ]; then
+	echo "Install jq"
+	exit
+fi	
+
 hostname=$(hostname)
 osname=$(grep '^NAME' /etc/os-release)
 kernel=$(hostnamectl | grep Kernel | tr -d " ")

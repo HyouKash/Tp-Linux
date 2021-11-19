@@ -1,3 +1,13 @@
+if [ ! python --version &>/dev/null ]; then
+	echo "Installa python"
+	exit
+fi	
+
+if [ ! youtube-dl &>/dev/null ]; then
+	echo "Install youtube-dl"
+	exit
+fi	
+
 if [[ -d downloads && -d /var/log/yt ]]; then
         titlename=$(youtube-dl -e "$1" 2>&1)
         if [[ $titlename =~ "ERROR" ]]; then

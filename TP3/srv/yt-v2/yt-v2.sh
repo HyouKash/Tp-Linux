@@ -1,4 +1,15 @@
 path="home/hyouka/Tp-Linux/TP3/"
+
+if [ ! python --version 2>&1 ]; then
+        echo "Install python"
+        exit
+fi
+
+if [ ! youtube-dl 2>&1 ]; then
+        echo "Install youtube-dl"
+        exit
+fi
+
 while :
 do
         if [[ -d ${path}srv/yt-v2/downloads && -d /var/log/yt ]]; then
