@@ -39,14 +39,7 @@ Si les dossier downloads et /var/log/yt sont présents ->
 ```bash
 hyouka@node1:~/Tp-Linux/TP3/srv/yt$ sudo bash yt.sh https://www.youtube.com/watch?v=jjs27jXL0Zs&ab_channel=REDD%C3%A9fis
 Video https://www.youtube.com/watch?v=jjs27jXL0Zs was downloaded.
-File Path : /srv/yt/downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4
-
-hyouka@node1:~/Tp-Linux/TP3/srv/yt$ cd downloads/
-hyouka@node1:~/Tp-Linux/TP3/srv/yt/downloads$ ls
-"SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE"
-tomfox@node1:~/Tp-Linux/TP3/srv/yt/downloads$ cd "SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE"/
-hyouka@node1:~/Tp-Linux/TP3/srv/yt/downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE$ ls
-description  "SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4"
+File Path : /srv/yt/downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE
 ```
 
 Si il en manque un (exemple le dossier downloads) ->
@@ -58,9 +51,17 @@ hyouka@node1:~/Tp-Linux/TP3/srv/yt$ sudo bash yt.sh https://www.youtube.com/watc
 Dossier downloads manquant, error..
 ```
 
-Le fichier de log :
+Si il y a une erreur et que la vidéo n'existe pas ->
+```bash
+hyouka@node1:~/Tp-Linux/TP3/srv/yt$ sudo bash yt.sh https://www.youtube.com/watch?v=fegfegeahahaha
+Video link is bad, retry..
+```
+Le fichier de log après plusieurs DL:
 ```bash
 hyouka@node1:~/Tp-Linux/TP3/srv/yt$ cat /var/log/yt/download.log
-[11/17/21 14:16:07] Video https://www.youtube.com/watch?v=jjs27jXL0Zs was downloaded. File Path : /srv/yt/downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4
-[11/17/21 14:34:08] Video https://www.youtube.com/watch?v=Hy5PxbaVdKQ was downloaded. File Path : /srv/yt/downloads/vidéo de 1 seconde./vidéo de 1 seconde.mp4
+[11/19/21 09:18:28] Video https://www.youtube.com/watch?v=jjs27jXL0Zs was downloaded. File Path : /srv/yt/downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE
+[11/19/21 09:20:28] Video https://www.youtube.com/watch?v=BEhmgN6_k5A was downloaded. File Path : /srv/yt/downloads/Sardoche réagit au niveau MONSTRUEUX de MV sur LoL au Zevent/Sardoche réagit au niveau MONSTRUEUX de MV sur LoL au Zevent
+[11/19/21 09:21:05] Video https://www.youtube.com/watch?v=fegfege_k5A has an error : ERROR: Video unavailable
+[11/19/21 09:24:16] Video https://www.youtube.com/watch?v=Y9N0G9Ib1oE was downloaded. File Path : /srv/yt/downloads/cette esquive de fou ! - MV #missclick?/cette esquive de fou ! - MV #missclick?
 ```
+**Youtube-dl Service :**
