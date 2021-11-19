@@ -1,9 +1,11 @@
-if [ ! python --version &>/dev/null ]; then
+command -v python &>/dev/null
+if [[ $? == 1 ]]; then
 	echo "Installa python"
 	exit
 fi	
 
-if [ ! youtube-dl &>/dev/null ]; then
+command -v youtube-dl &>/dev/null
+if [[ $? == 1 ]]; then
 	echo "Install youtube-dl"
 	exit
 fi	

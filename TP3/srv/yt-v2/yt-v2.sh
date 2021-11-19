@@ -1,11 +1,13 @@
 path="home/hyouka/Tp-Linux/TP3/"
 
-if [ ! python --version 2>&1 ]; then
-        echo "Install python"
+command -v python &>/dev/null
+if [[ $? == 1 ]]; then                     
+        echo "Installa python"
         exit
-fi
+fi      
 
-if [ ! youtube-dl 2>&1 ]; then
+command -v youtube-dl &>/dev/null
+if [[ $? == 1 ]]; then               
         echo "Install youtube-dl"
         exit
 fi

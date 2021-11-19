@@ -1,6 +1,7 @@
-if [ ! jq --version 2>&1 ]; then
-	echo "Install jq"
-	exit
+command -v jq &>/dev/null
+if [[ $? == 1 ]]; then
+        echo "Please install jq before running this."
+        exit
 fi	
 
 hostname=$(hostname)
