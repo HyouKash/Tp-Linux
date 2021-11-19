@@ -1,7 +1,13 @@
 command -v jq &>/dev/null
 if [[ $? == 1 ]]; then
-        echo "Please install jq before running this."
+        echo "Please install jq"
         exit
+fi	
+
+command -v curl &>/dev/null
+if [[ $? == 1 ]]; then
+	echo "Please install curl"
+	exit
 fi	
 
 hostname=$(hostname)
