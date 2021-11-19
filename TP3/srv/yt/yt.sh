@@ -2,8 +2,9 @@
 
 if [[ -d downloads && -d /var/log/yt ]]; then
 	titlename=`youtube-dl -e $1 2>&1`
-        if [[ $titlename = "ERROR" ]]; then
+        if [[ $titlename =~ "ERROR" ]]; then
 		echo "Video link is bad, retry.."
+		sudo echo "[`date "+%D %T"`] Video $1 has an error : $titlename" >> /var/log/yt/download.log
                 exit
         else
         	mkdir downloads/"${titlename}"

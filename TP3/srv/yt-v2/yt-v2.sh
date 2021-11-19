@@ -7,6 +7,7 @@ if [[ -d downloads && -d /var/log/yt ]]; then
 			sed -i '1d' file.txt
         		titlename=`youtube-dl -e $i 2>&1`
 			if [[ $titlename =~ "ERROR" ]]; then
+				sudo echo "[`date "+%D %T"`] Video $i has an error : $titlename" >> /var/log/yt/download.log
 				exit
 			else
         			mkdir downloads/"${titlename}"
