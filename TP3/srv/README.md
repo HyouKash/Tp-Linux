@@ -147,6 +147,10 @@ nov. 19 10:52:08 hyouka-VirtualBox sudo[36438]: pam_unix(sudo:session): session 
 nov. 19 10:52:08 hyouka-VirtualBox sudo[36438]: pam_unix(sudo:session): session closed for user root
 ```
 
+```bash
+sudo systemctl enable yt
+```
+
 **BONUS**
 
 Asciinema du service YT
@@ -155,6 +159,21 @@ Asciinema du service YT
 
 Les fonctions bonus : 
 
+fonction usage :
+```bash
+❯ sudo bash yt.sh -h
+Usage: yt.sh [options...] <url>
+ -q <quality> (best,worst,bestvideo,worstvideo,bestaudio,worstaudio)
+ -o <directory> output file
+❯ sudo bash yt.sh -o /home/hyouka/ https://www.youtube.com/watch\?v\=jjs27jXL0Zs\&ab_channel\=REDD%C3%A9fis
+Video https://www.youtube.com/watch?v=jjs27jXL0Zs&ab_channel=REDD%C3%A9fis was downloaded.
+File Path : /home/hyouka/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4
+❯ ls /home/hyouka/SI\ LA\ VIDÉO\ DURE\ 1\ SECONDE\ LA\ VIDÉO\ S\'ARRÊTE
+ description  "SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4"
+❯ sudo bash yt.sh -q worstvideo https://www.youtube.com/watch\?v\=jjs27jXL0Zs\&ab_channel\=REDD%C3%A9fis
+Video https://www.youtube.com/watch?v=jjs27jXL0Zs&ab_channel=REDD%C3%A9fis was downloaded.
+File Path : downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4
+```
 - check si les fichiers sont bien présents
 - check si l'url donnée est bonne et renvoie bien vers une video
 - check les dependencies (jq, youtube-dl, python, etc..)
