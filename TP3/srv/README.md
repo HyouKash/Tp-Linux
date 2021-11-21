@@ -174,6 +174,7 @@ File Path : /home/hyouka/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA V
 Video https://www.youtube.com/watch?v=jjs27jXL0Zs&ab_channel=REDD%C3%A9fis was downloaded.
 File Path : downloads/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE/SI LA VIDÉO DURE 1 SECONDE LA VIDÉO S'ARRÊTE.mp4
 ```
+- En accord avec ShellCheck
 - check si les fichiers sont bien présents
 - check si l'url donnée est bonne et renvoie bien vers une video
 - check les dependencies (jq, youtube-dl, python, etc..)
