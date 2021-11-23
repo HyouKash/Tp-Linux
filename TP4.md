@@ -190,7 +190,7 @@ success
 [hyouka@node1 html]$ sudo firewall-cmd --reload
 success
 
-[hyouka@node1 html]$ curl http://192.168.56.37
+❯ curl http://192.168.56.37
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 [...]
 </html>
@@ -248,4 +248,61 @@ LISTEN 0      128             [::]:8080         [::]:*    users:(("nginx",pid=25
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 ```
 
-Changer l'utilisateur qui lance le service :
+Changer l'utilisateur qui lance le service : 
+
+```bash 
+[hyouka@node1 ~]$ sudo useradd web -m -s /bin/bash -u 2000
+[hyouka@node1 ~]$ sudo passwd web
+Changing password for user web.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+[hyouka@node1 ~]$ cat /etc/passwd | grep web
+web:x:2000:2000::/home/web:/bin/bash
+
+[hyouka@node1 ~]$ cat /etc/nginx/nginx.conf
+user web;
+[...]
+
+[hyouka@node1 ~]$ sudo systemctl restart nginx
+[hyouka@node1 ~]$ ps -aux | grep nginx
+web        26313  0.0  0.4 151820  7884 ?        S    12:57   0:00 nginx: worker process
+```
+
+Changer l'emplacement de la racine Web : 
+
+```bash 
+[hyouka@node1 ~]$ sudo mkdir /var/www
+[hyouka@node1 ~]$ cd /var/www
+[hyouka@node1 www]$ sudo mkdir super_site_web
+[hyouka@node1 www]$ cd super_site_web/
+[hyouka@node1 super_site_web]$ sudo vi index.html
+[hyouka@node1 super_site_web]$ cd ..
+[hyouka@node1 www]$ sudo chown -R web:web super_site_web/
+[hyouka@node1 www]$ ls -la
+total 4
+drwxr-xr-x.  3 root root   28 Nov 23 13:00 .
+drwxr-xr-x. 22 root root 4096 Nov 23 13:00 ..
+drwxr-xr-x.  2 web  web    24 Nov 23 13:01 super_site_web
+[hyouka@node1 www]$ ls -la super_site_web/
+total 4
+drwxr-xr-x. 2 web  web   24 Nov 23 13:01 .
+drwxr-xr-x. 3 root root  28 Nov 23 13:00 ..
+-rw-r--r--. 1 web  web  794 Nov 23 13:01 index.html
+
+[hyouka@node1 www]$ sudo vi /etc/nginx/nginx.conf
+[hyouka@node1 www]$ cat /etc/nginx/nginx.conf | grep root
+        root         /var/www/super_site_web;
+[hyouka@node1 www]$ sudo systemctl restart nginx
+
+❯ curl http://192.168.56.37:8080/
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My first Heading</h1>
+<p>My first paragraph.</p>
+
+</body>
+</html>
+```
