@@ -465,7 +465,7 @@ server {
     listen 80;
     server_name web.tp5.linux;
     location / {
-                proxy_pass http://backend_servers/;
+                proxy_pass https://backend_servers/;
                 proxy_set_header HOST $host;
         }
 }
