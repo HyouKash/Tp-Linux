@@ -362,3 +362,123 @@ mysql> SHOW TABLES;
 [...]
 77 rows in set (0.00 sec)
 ```
+
+## Bonus : 
+
+HTTPS : 
+
+```
+[hyouka@web ~]$ sudo openssl req -new -x509 -days 365 -nodes -out /etc/ssl/certs/webserver.crt -keyout /etc/ssl/private/webserver.key
+Generating a RSA private key
+.+++++
+............+++++
+writing new private key to '/etc/ssl/private/mailserver.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:FR
+State or Province Name (full name) []:Aquitaine
+Locality Name (eg, city) [Default City]:Bordeaux
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server's hostname) []:web.tp5.linux
+Email Address []:HyouKaV1@protonmail.com
+
+[hyouka@web ~]$ sudo chmod 440 /etc/ssl/private/webserver.key
+
+[hyouka@web ~]$ cat /etc/httpd/conf.d/website.conf
+<VirtualHost *:443>
+  DocumentRoot /var/www/nextcloud/html/  
+  SSLEngine on
+  SSLCertificateFile /etc/ssl/certs/webserver.crt
+  SSLCertificateKeyFile /etc/ssl/private/webserver.key
+  ServerName  web.tp5.linux  
+
+  <Directory /var/www/nextcloud/html/>
+    Require all granted
+    AllowOverride All
+    Options FollowSymLinks MultiViews
+
+    <IfModule mod_dav.c>
+      Dav off
+    </IfModule>
+  </Directory>
+</VirtualHost>
+
+[hyouka@web ~]$ sudo firewall-cmd --add-port=443/tcp --permanent
+success
+[hyouka@web ~]$ sudo firewall-cmd --reload
+success
+[hyouka@web ~]$ sudo systemctl restart httpd
+```
+
+![](https://i.imgur.com/WBER5nO.png)
+
+
+Maintenant on s'occupe de la redirection, voici à quoi ressemble la conf : 
+
+```
+[hyouka@web ~]$ cat /etc/httpd/conf.d/website.conf
+<VirtualHost *:80>
+  Redirect permanent / https://web.tp5.linux/
+</VirtualHost>
+
+<VirtualHost *:443>
+  DocumentRoot /var/www/nextcloud/html/  
+  SSLEngine on
+  SSLCertificateFile /etc/ssl/certs/webserver.crt
+  SSLCertificateKeyFile /etc/ssl/private/webserver.key
+  ServerName  web.tp5.linux  
+
+  <Directory /var/www/nextcloud/html/>
+    Require all granted
+    AllowOverride All
+    Options FollowSymLinks MultiViews
+
+    <IfModule mod_dav.c>
+      Dav off
+    </IfModule>
+  </Directory>
+</VirtualHost>
+```
+
+Reverse Proxy : 
+
+Le deuxième serveur web a bien accès à la db (même procédure que précedemment).
+
+On configure le reverse proxy (nginx) : 
+
+```bash 
+[hyouka@rp conf.d]$ cat reverseproxy.conf
+upstream backend_servers {
+    ip_hash;
+    server web1.tp5.linux;
+    server web2.tp5.linux;
+}
+
+server {
+    listen 80;
+    server_name web.tp5.linux;
+    location / {
+                proxy_pass http://backend_servers/;
+                proxy_set_header HOST $host;
+        }
+}
+```
+
+Avec ses 2 hosts : 
+
+```bash 
+[hyouka@rp conf.d]$ cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.5.1.11   web1.tp5.linux
+10.5.1.13   web2.tp5.linux
+```
+
+Le rp redirige vers l'un ou l'autre.
