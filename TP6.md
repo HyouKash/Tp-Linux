@@ -211,3 +211,60 @@ mount.nfs: trying text-based options 'vers=4.2,addr=10.5.1.13,clientaddr=10.5.1.
 10.5.1.13:/backup/web.tp6.linux/ /srv/backup nfs defaults 0 0
 ```
 
+## II. Scripts de sauvegarde
+
+**Sauvegarde Web**
+
+Le script : 
+
+```bash
+#!/bin/bash
+filename="nextcloud_db_$(date +"%y%m%d")_$(date +"%H%M%S").tar.gz"
+mysqldump -u root -pTom03042003 nextcloud > /home/hyouka/nextcloud.sql
+cd /home/hyouka && tar -czf "/srv/backup/${filename}" nextcloud.sql
+rm nextcloud.sql
+echo "Backup /srv/backup/${filename} created successfully."
+echo "[$(date +"%y:%m:%d") $(date +"%H:%M:%S")] Backup /srv/backup/${filename} created successfully." >> /var/log/backup/backup.log
+```
+
+**Le service**
+
+```bash
+[hyouka@db ~]$ cat /etc/systemd/system/backup_db.service
+[Unit]
+Description=Auto Backup
+
+[Service]
+ExecStart=/usr/bin/bash /home/hyouka/backupscript.sh
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+[hyouka@db ~]$ sudo systemctl start backup_db
+[hyouka@db ~]$ ls -la /srv/backup/
+total 68
+drwxrwxr-x. 2 hyouka hyouka  4096 Dec  7 18:19 .
+drwxr-xr-x. 3 root   root      20 Nov 30 13:23 ..
+-rw-r--r--. 1 root   root   65296 Dec  7 18:19 nextcloud_db_211207_181926.tar.gz
+```
+
+**Timer**
+
+```bash
+[hyouka@db ~]$ cat /etc/systemd/system/backup_db.timer
+[Unit]
+Description=Lance backup.service à intervalles réguliers
+Requires=backup_db.service
+
+[Timer]
+Unit=backup_db.service
+OnCalendar=hourly
+
+[Install]
+WantedBy=timers.target
+[hyouka@db ~]$ sudo systemctl daemon-reload
+[hyouka@db ~]$ sudo systemctl start backup.timer
+[hyouka@db ~]$ sudo systemctl enable backup.timer
+Created symlink /etc/systemd/system/timers.target.wants/backup_db.timer → /etc/systemd/system/backup_db.timer.
+[hyouka@db ~]$ sudo systemctl list-timers | grep backup
+Tue 2021-12-07 19:00:00 CET  32min left    n/a                          n/a          backup_db.timer                 backup_db.service
