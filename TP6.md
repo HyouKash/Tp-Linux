@@ -188,7 +188,7 @@ Domain = tp6.linux
 ```
 
 ```bash 
-[tomfox@web1 srv]$ df -h backup
+[hyouka@web1 srv]$ df -h backup
 Filesystem                       Size  Used Avail Use% Mounted on
 10.5.1.13:/backup/web.tp6.linux  7.9G   36M  7.4G   1% /srv/backup
 [hyouka@web1 srv]$ ls -la
@@ -211,11 +211,86 @@ mount.nfs: trying text-based options 'vers=4.2,addr=10.5.1.13,clientaddr=10.5.1.
 10.5.1.13:/backup/web.tp6.linux/ /srv/backup nfs defaults 0 0
 ```
 
-## II. Scripts de sauvegarde
+## Partie 4 : Scripts de sauvegarde
 
-**1.Sauvegarde Web**
+### I. Sauvegarde Web
 
-Le script : 
+**Script qui sauvegarde les données de NextCloud**
+
+```bash
+#!/bin/bash
+filename="nextcloud_$(date +"%y%m%d")_$(date +"%H%M%S").tar.gz"
+cd /var/www && tar -czf "/srv/backup/${filename}" nextcloud
+echo "Backup /srv/backup/${filename} created successfully."
+echo "[$(date +"%y:%m:%d") $(date +"%H:%M:%S")] Backup /srv/backup/${filename} created successfully." >> /var/log/backup/backup.log
+```
+
+**Le service**
+
+```bash
+[hyouka@web1 ~]$ cat /etc/systemd/system/backup.service
+[Unit]
+Description=Auto Backup
+
+[Service]
+ExecStart=/usr/bin/bash /home/hyouka/backupscript.sh
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+[hyouka@web1 ~]$ sudo systemctl start backup
+[hyouka@web1 ~]$ sudo systemctl status backup
+● backup.service - Auto Backup
+   Loaded: loaded (/etc/systemd/system/backup.service; disabled; vendor preset: disabled)
+   Active: inactive (dead)
+
+Dec 07 17:04:34 web1.tp5.linux systemd[1]: Starting Auto Backup...
+Dec 07 17:04:56 web1.tp5.linux bash[2005]: Backup /srv/backup/nextcloud_211207_170434.tar.gz created successfully.
+Dec 07 17:04:56 web1.tp5.linux systemd[1]: backup.service: Succeeded.
+Dec 07 17:04:56 web1.tp5.linux systemd[1]: Started Auto Backup.
+```
+
+**Réstauration des données**
+
+```bash
+[hyouka@web1 ~]$ cp /srv/backup/nextcloud_211207_165742.tar.gz /home/hyouka
+[hyouka@web1 ~]$ ls
+backupscript.sh  nextcloud_211207_165742.tar.gz
+[hyouka@web1 ~]$ tar -xf nextcloud_211207_165742.tar.gz 
+[hyouka@web1 ~]$ ls
+[hyouka@web1 ~]$ sudo -g apache mv nextcloud /var/www/
+mv: replace '/var/www/nextcloud', overriding mode 0755 (rwxr-xr-x)? 
+```
+
+**Le timer**
+
+```bash
+[hyouka@web1 ~]$ sudo vi /etc/systemd/system/backup.timer
+[hyouka@db ~]$ cat /etc/systemd/system/backup.timer
+[Unit]
+Description=Lance backup.service à intervalles réguliers
+Requires=backup.service
+
+[Timer]
+Unit=backup.service
+OnCalendar=hourly
+
+[Install]
+WantedBy=timers.target
+[hyouka@web1 ~]$ sudo systemctl daemon-reload
+[hyouka@web1 ~]$ sudo systemctl start backup.timer
+[hyouka@web1 ~]$ sudo systemctl enable backup.timer
+Created symlink /etc/systemd/system/timers.target.wants/backup.timer → /etc/systemd/system/backup.timer.
+[hyouka@web1 ~]$ sudo systemctl list-timers | grep backup.timer
+Tue 2021-12-07 18:00:00 CET  21min left n/a                          n/a       backup.timer                 backup.service
+```
+
+### II. Sauvegarde base de données
+
+**Script qui sauvegarde les données de la base de données MariaDB**
 
 ```bash
 #!/bin/bash
@@ -248,7 +323,7 @@ drwxr-xr-x. 3 root   root      20 Nov 30 13:23 ..
 -rw-r--r--. 1 root   root   65296 Dec  7 18:19 nextcloud_db_211207_181926.tar.gz
 ```
 
-**Timer**
+**Le timer**
 
 ```bash
 [hyouka@db ~]$ cat /etc/systemd/system/backup_db.timer
@@ -268,3 +343,4 @@ WantedBy=timers.target
 Created symlink /etc/systemd/system/timers.target.wants/backup_db.timer → /etc/systemd/system/backup_db.timer.
 [hyouka@db ~]$ sudo systemctl list-timers | grep backup
 Tue 2021-12-07 19:00:00 CET  32min left    n/a                          n/a          backup_db.timer                 backup_db.service
+```
